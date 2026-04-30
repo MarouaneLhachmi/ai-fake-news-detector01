@@ -1,6 +1,6 @@
 # AI Fake News Detector
 
-An intelligent, full-stack web application designed to combat misinformation by analyzing news content from various sources using artificial intelligence. This project provides users with detailed insights into the authenticity, bias, and tone of news articles, images, and URLs. Forcer le deploiement.
+An intelligent, full-stack web application designed to combat misinformation by analyzing news content from various sources using artificial intelligence. This project provides users with detailed insights into the authenticity, bias, and tone of news articles, images, and URLs.
 
 ## Key Features
 
