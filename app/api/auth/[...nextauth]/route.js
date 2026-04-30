@@ -46,6 +46,15 @@ export const authOptions = {
   },
 
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith('aifakenewsdetector://')) return url;
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      try {
+        if (new URL(url).origin === baseUrl) return url;
+      } catch {}
+      return baseUrl;
+    },
+    
     async signIn({ user, account }) {
       if (account?.provider === "google" || account?.provider === "github") {
         try {
