@@ -46,7 +46,6 @@ export const authOptions = {
   },
 
   callbacks: {
-    
     async redirect({ url, baseUrl }) {
       if (url.startsWith('aifakenewsdetector://')) return url;
       if (url.startsWith('/')) return `${baseUrl}${url}`;
