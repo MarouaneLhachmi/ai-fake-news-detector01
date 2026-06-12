@@ -1,29 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import Link from 'next/link';
+import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Twitter, Github, Linkedin, MessageCircle, Send, X } from 'lucide-react';
+import { Twitter, Github, Linkedin, MessageCircle, Send, X } from "lucide-react";
 
 export default function Footer() {
     const { data: session } = useSession();
     const [showForm, setShowForm] = useState(false);
-    const [opinion, setOpinion] = useState('');
+    const [opinion, setOpinion] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+
+    const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeiDWN2iRuXCY8LZId1BQlQt8OUuSe9J7-CYez7hlxzG97alA/viewform?usp=dialog";
 
     const handleSubmit = async () => {
         if (!opinion.trim() || submitting) return;
         setSubmitting(true);
         try {
-            const res = await fetch('/api/app-opinion', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const res = await fetch("/api/app-opinion", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ opinion }),
             });
             if (res.ok) {
                 setSubmitted(true);
-                setOpinion('');
+                setOpinion("");
                 setTimeout(() => { setSubmitted(false); setShowForm(false); }, 2500);
             }
         } catch (e) {
@@ -39,9 +41,7 @@ export default function Footer() {
 
                     <div>
                         <span className="text-primary font-bold text-lg">AI Fake News Detector</span>
-                        <p className="text-sm text-white/60 mt-3">
-                            An intelligent tool for analyzing news articles and images to combat the spread of misinformation.
-                        </p>
+                        <p className="text-sm text-white/60 mt-3">An intelligent tool for analyzing news articles and images to combat the spread of misinformation.</p>
                     </div>
 
                     <div>
@@ -72,32 +72,22 @@ export default function Footer() {
 
                         <h4 className="font-semibold text-white/90 mb-3">Application Feedback</h4>
 
-                        
-                            href="https://docs.google.com/forms/d/e/1FAIpQLSeiDWN2iRuXCY8LZId1BQlQt8OUuSe9J7-CYez7hlxzG97alA/viewform?usp=dialog"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-primary transition-colors"
-                        >
-                            <MessageCircle size={16} />
-                            <span>Give your opinion</span>
+                        <a href={googleFormUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-primary transition-colors">
+                            <MessageCircle size={16} /><span>Give your opinion</span>
                         </a>
 
                         {session && (
                             <div className="mt-3">
                                 {!showForm ? (
-                                    <button
-                                        onClick={() => setShowForm(true)}
-                                        className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-primary transition-colors"
-                                    >
-                                        <Send size={16} />
-                                        <span>Write your opinion</span>
+                                    <button onClick={() => setShowForm(true)} className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-primary transition-colors">
+                                        <Send size={16} /><span>Write your opinion</span>
                                     </button>
                                 ) : (
                                     <div className="mt-2 space-y-2">
                                         {submitted ? (
                                             <p className="text-sm text-green-400 font-medium">Thank you for your opinion!</p>
                                         ) : (
-                                            <>
+                                            <div className="space-y-2">
                                                 <textarea
                                                     value={opinion}
                                                     onChange={(e) => setOpinion(e.target.value)}
@@ -107,24 +97,15 @@ export default function Footer() {
                                                     maxLength={500}
                                                 />
                                                 <div className="flex gap-2 items-center">
-                                                    <button
-                                                        onClick={handleSubmit}
-                                                        disabled={submitting || !opinion.trim()}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-primary/80 hover:bg-primary text-white rounded-lg transition-colors disabled:opacity-50"
-                                                    >
-                                                        <Send size={12} />
-                                                        <span>{submitting ? 'Sending...' : 'Submit'}</span>
+                                                    <button onClick={handleSubmit} disabled={submitting || !opinion.trim()} className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-primary/80 hover:bg-primary text-white rounded-lg transition-colors disabled:opacity-50">
+                                                        <Send size={12} /><span>{submitting ? "Sending..." : "Submit"}</span>
                                                     </button>
-                                                    <button
-                                                        onClick={() => { setShowForm(false); setOpinion(''); }}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
-                                                    >
-                                                        <X size={12} />
-                                                        <span>Cancel</span>
+                                                    <button onClick={() => { setShowForm(false); setOpinion(""); }} className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors">
+                                                        <X size={12} /><span>Cancel</span>
                                                     </button>
                                                     <span className="text-xs text-white/40 ml-auto">{opinion.length}/500</span>
                                                 </div>
-                                            </>
+                                            </div>
                                         )}
                                     </div>
                                 )}
