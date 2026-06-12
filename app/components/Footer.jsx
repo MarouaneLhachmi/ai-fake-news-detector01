@@ -26,7 +26,9 @@ export default function Footer() {
                 setOpinion('');
                 setTimeout(() => { setSubmitted(false); setShowForm(false); }, 2500);
             }
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error(e);
+        }
         setSubmitting(false);
     };
 
@@ -35,7 +37,6 @@ export default function Footer() {
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
 
-                    {/* Colonne 1 : About */}
                     <div>
                         <span className="text-primary font-bold text-lg">AI Fake News Detector</span>
                         <p className="text-sm text-white/60 mt-3">
@@ -43,7 +44,6 @@ export default function Footer() {
                         </p>
                     </div>
 
-                    {/* Colonne 2 : Quick Links */}
                     <div>
                         <h4 className="font-semibold text-white/90 mb-4">Quick Links</h4>
                         <ul className="space-y-2">
@@ -54,7 +54,6 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Colonne 3 : Legal */}
                     <div>
                         <h4 className="font-semibold text-white/90 mb-4">Legal</h4>
                         <ul className="space-y-2">
@@ -63,7 +62,6 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Colonne 4 : Connect + Feedback */}
                     <div>
                         <h4 className="font-semibold text-white/90 mb-4">Connect With Us</h4>
                         <div className="flex items-center gap-4 mb-6">
@@ -74,7 +72,6 @@ export default function Footer() {
 
                         <h4 className="font-semibold text-white/90 mb-3">Application Feedback</h4>
 
-                        {/* 1er lien : Google Form — toujours visible */}
                         
                             href="https://docs.google.com/forms/d/e/1FAIpQLSeiDWN2iRuXCY8LZId1BQlQt8OUuSe9J7-CYez7hlxzG97alA/viewform?usp=dialog"
                             target="_blank"
@@ -82,10 +79,9 @@ export default function Footer() {
                             className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-primary transition-colors"
                         >
                             <MessageCircle size={16} />
-                            Give your opinion
+                            <span>Give your opinion</span>
                         </a>
 
-                        {/* 2ème option : formulaire inline — connectés seulement */}
                         {session && (
                             <div className="mt-3">
                                 {!showForm ? (
@@ -94,12 +90,12 @@ export default function Footer() {
                                         className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-primary transition-colors"
                                     >
                                         <Send size={16} />
-                                        Write your opinion
+                                        <span>Write your opinion</span>
                                     </button>
                                 ) : (
                                     <div className="mt-2 space-y-2">
                                         {submitted ? (
-                                            <p className="text-sm text-green-400 font-medium">✅ Thank you for your opinion!</p>
+                                            <p className="text-sm text-green-400 font-medium">Thank you for your opinion!</p>
                                         ) : (
                                             <>
                                                 <textarea
@@ -117,13 +113,14 @@ export default function Footer() {
                                                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-primary/80 hover:bg-primary text-white rounded-lg transition-colors disabled:opacity-50"
                                                     >
                                                         <Send size={12} />
-                                                        {submitting ? 'Sending...' : 'Submit'}
+                                                        <span>{submitting ? 'Sending...' : 'Submit'}</span>
                                                     </button>
                                                     <button
                                                         onClick={() => { setShowForm(false); setOpinion(''); }}
                                                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
                                                     >
-                                                        <X size={12} /> Cancel
+                                                        <X size={12} />
+                                                        <span>Cancel</span>
                                                     </button>
                                                     <span className="text-xs text-white/40 ml-auto">{opinion.length}/500</span>
                                                 </div>
