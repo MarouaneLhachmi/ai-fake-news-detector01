@@ -64,7 +64,7 @@ export async function POST(request) {
     console.log("[API/analyze-url] Analyzing extracted text...");
 
     const aiResponse = await client.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4.1",
       messages: [
         {
           role: "system",
