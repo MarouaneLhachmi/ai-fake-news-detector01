@@ -6,13 +6,14 @@ import { useEffect, useState } from "react";
 import {
     Loader2, Users, BarChart4, ChevronLeft, ChevronRight,
     Trash2, Search, MessageSquare, ThumbsUp, ThumbsDown,
-    FileSearch, CheckCircle, XCircle, Link as LinkIcon
+    FileSearch, CheckCircle, XCircle
 } from "lucide-react";
 import Link from "next/link";
 import StatCard from "@/app/components/StatCard";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
 import ClientOnlyTimestamp from "@/app/components/ClientOnlyTimestamp";
 
+// ─── Composant ligne feedback (helpful/unhelpful) ───────────────
 function FeedbackRow({ feedback }) {
     const analysis = feedback.analysisInfo;
     return (
@@ -38,12 +39,11 @@ function FeedbackRow({ feedback }) {
     );
 }
 
+// ─── Composant ligne analyse ─────────────────────────────────────
 function AnalysisRow({ analysis }) {
     const isLikelyFake = analysis.result?.isLikelyFake;
     const confidence = analysis.result?.confidenceScore;
-    const headline = analysis.result?.headline;
     const inputPreview = analysis.url || analysis.text || "Image Analysis";
-
     return (
         <tr className="border-b border-white/10 last:border-b-0">
             <td className="p-3">
@@ -52,33 +52,22 @@ function AnalysisRow({ analysis }) {
                         <img src={analysis.userInfo.image} alt="" className="w-7 h-7 rounded-full" />
                     ) : (
                         <div className="w-7 h-7 rounded-full bg-primary/30 flex items-center justify-center text-xs text-white font-bold">
-                            {(analysis.userEmail || "?")[0].toUpperCase()}
+                            {(analysis.userEmail || "?").charAt(0).toUpperCase()}
                         </div>
                     )}
                     <div>
                         <p className="text-sm font-medium text-white">{analysis.userInfo?.name || "Anonymous"}</p>
-                        <p className="text-xs text-white/50">{analysis.userEmail || "—"}</p>
+                        <p className="text-xs text-white/50">{analysis.userEmail}</p>
                     </div>
                 </div>
             </td>
             <td className="p-3">
-                <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${
-                    analysis.source === 'image' ? 'bg-purple-500/20 text-purple-300' :
-                    analysis.source === 'url' ? 'bg-blue-500/20 text-blue-300' :
-                    'bg-gray-500/20 text-gray-300'
-                }`}>
-                    {analysis.source === 'image' ? '🖼' : analysis.source === 'url' ? <LinkIcon size={10}/> : '📝'}
-                    <span className="capitalize">{analysis.source || 'text'}</span>
-                </span>
+                <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/10 text-white/80 capitalize">{analysis.source || "text"}</span>
             </td>
-            <td className="p-3 text-white/70 text-sm max-w-xs truncate" title={headline || inputPreview}>
-                {headline || inputPreview.substring(0, 60)}
-            </td>
+            <td className="p-3 text-white/70 text-sm max-w-xs truncate" title={inputPreview}>{inputPreview}</td>
             <td className="p-3">
                 {isLikelyFake !== undefined ? (
-                    <span className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full w-fit ${
-                        isLikelyFake ? 'bg-danger/20 text-danger-text' : 'bg-success/20 text-success-text'
-                    }`}>
+                    <span className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full w-fit ${isLikelyFake ? 'bg-danger/20 text-danger-text' : 'bg-success/20 text-success-text'}`}>
                         {isLikelyFake ? <XCircle size={12}/> : <CheckCircle size={12}/>}
                         {isLikelyFake ? 'Fake' : 'Real'}
                         {confidence !== undefined && ` · ${confidence}%`}
@@ -92,6 +81,65 @@ function AnalysisRow({ analysis }) {
     );
 }
 
+// ─── NOUVEAU : Composant App Opinions ────────────────────────────
+function AppOpinionsSection() {
+    const [opinions, setOpinions] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('/api/app-opinion')
+            .then(r => r.json())
+            .then(data => { setOpinions(data.opinions || []); setLoading(false); })
+            .catch(() => setLoading(false));
+    }, []);
+
+    return (
+        <div className="p-6 rounded-2xl bg-neutral/10 border border-white/20 mb-8">
+            <div className="flex items-center gap-3 mb-4">
+                <MessageSquare className="h-8 w-8 text-primary"/>
+                <div>
+                    <h2 className="text-xl font-semibold text-white">App Opinions</h2>
+                    <p className="text-white/70">Opinions written directly by users on the platform.</p>
+                </div>
+            </div>
+            {loading ? (
+                <div className="flex justify-center py-6"><Loader2 className="animate-spin text-primary" /></div>
+            ) : (
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="border-b border-white/20">
+                            <tr>
+                                <th className="p-3 text-sm font-semibold text-white/80">User</th>
+                                <th className="p-3 text-sm font-semibold text-white/80">Opinion</th>
+                                <th className="p-3 text-sm font-semibold text-white/80">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {opinions.length === 0 ? (
+                                <tr><td colSpan={3} className="p-6 text-center text-white/40">No opinions yet.</td></tr>
+                            ) : (
+                                opinions.map((op, i) => (
+                                    <tr key={i} className="border-b border-white/10 last:border-b-0">
+                                        <td className="p-3">
+                                            <p className="font-medium text-white">{op.userName}</p>
+                                            <p className="text-xs text-white/50">{op.userEmail}</p>
+                                        </td>
+                                        <td className="p-3 text-white/80 text-sm max-w-md">{op.opinion}</td>
+                                        <td className="p-3 text-white/60 text-sm">
+                                            <ClientOnlyTimestamp timestamp={op.createdAt} />
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ─── Page principale Admin ───────────────────────────────────────
 export default function AdminDashboardPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -182,7 +230,7 @@ export default function AdminDashboardPage() {
                 <main className="container mx-auto px-4 py-8">
                     <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
                         <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Dashboard Admin</h1>
-                        <Link href="/" className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white dark:bg-neutral/20 hover:bg-gray-100 dark:hover:bg-neutral/30 rounded-lg">
+                        <Link href="/" className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-white dark:bg-neutral/20 hover:bg-gray-100 dark:hover:bg-neutral/30 rounded-lg transition-colors border border-gray-200 dark:border-white/20">
                             Back to Analyzer
                         </Link>
                     </div>
@@ -237,7 +285,7 @@ export default function AdminDashboardPage() {
                         </div>
                     </div>
 
-                    {/* User Feedback */}
+                    {/* User Feedback (helpful/unhelpful) */}
                     <div className="p-6 rounded-2xl bg-neutral/10 border border-white/20 mb-8">
                         <div className="flex items-center gap-3 mb-4">
                             <MessageSquare className="h-8 w-8 text-primary"/>
@@ -278,6 +326,9 @@ export default function AdminDashboardPage() {
                         </div>
                     </div>
 
+                    {/* ✅ NOUVEAU : App Opinions */}
+                    <AppOpinionsSection />
+
                     {/* All Users */}
                     <div className="p-6 rounded-2xl bg-neutral/10 border border-white/20">
                         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
@@ -300,25 +351,37 @@ export default function AdminDashboardPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {users.map(user => (
-                                        <tr key={user._id} className="border-b border-white/10 last:border-b-0">
-                                            <td className="p-3">
-                                                <div className="flex items-center gap-3">
-                                                    <img src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=2563eb&color=fff`} alt={user.name} className="w-9 h-9 rounded-full bg-primary"/>
-                                                    <div>
-                                                        <p className="font-medium text-white">{user.name}</p>
-                                                        <p className="text-xs text-white/60">{user.email}</p>
+                                    {users.length === 0 ? (
+                                        <tr><td colSpan={3} className="p-6 text-center text-white/40">No users found.</td></tr>
+                                    ) : (
+                                        users.map(u => (
+                                            <tr key={u._id} className="border-b border-white/10 last:border-b-0">
+                                                <td className="p-3">
+                                                    <div className="flex items-center gap-3">
+                                                        {u.image ? (
+                                                            <img src={u.image} alt="" className="w-8 h-8 rounded-full"/>
+                                                        ) : (
+                                                            <div className="w-8 h-8 rounded-full bg-primary/30 flex items-center justify-center text-sm font-bold text-white">
+                                                                {(u.name || u.email || "?").charAt(0).toUpperCase()}
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <p className="font-medium text-white">{u.name}</p>
+                                                            <p className="text-xs text-white/50">{u.email}</p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td className="p-3 text-white/80"><ClientOnlyTimestamp timestamp={user.createdAt} /></td>
-                                            <td className="p-3 text-right">
-                                                <button onClick={() => setUserToDelete(user)} disabled={session.user.id === user._id} className="p-2 text-danger-text hover:bg-danger/20 rounded-full disabled:opacity-30 disabled:cursor-not-allowed" title="Delete User">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                </td>
+                                                <td className="p-3 text-white/60 text-sm">
+                                                    <ClientOnlyTimestamp timestamp={u.createdAt} />
+                                                </td>
+                                                <td className="p-3 text-right">
+                                                    <button onClick={() => setUserToDelete(u)} className="p-1.5 rounded-md text-danger-text hover:bg-danger/20 transition-colors">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </div>
